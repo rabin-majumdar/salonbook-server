@@ -2,14 +2,16 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { connectDB } from "./config/db";
+import servicesRouter from "./routes/services";
 
 const app = express();
 
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(express.json());
+app.use("/api/services", servicesRouter);
 
-app.get("/", (_req, res) => {
-    res.json({ message: "SalonBook API is running" });
+app.use((_req, res) => {
+    res.status(404).json({ message: "Route not found" });
 });
 
 const port = process.env.PORT || 5000;
