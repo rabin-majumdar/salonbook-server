@@ -6,6 +6,8 @@ import servicesRouter from "./routes/services";
 import { verifyToken } from "./middleware/auth";
 import { Request, Response, NextFunction } from "express";
 import appointmentsRouter from "./routes/appointments";
+import usersRouter from "./routes/users";
+import statsRouter from "./routes/stats";
 
 const app = express();
 
@@ -13,6 +15,8 @@ app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(express.json());
 app.use("/api/services", servicesRouter);
 app.use("/api/appointments", appointmentsRouter);
+app.use("/api/users", usersRouter);
+app.use("/api/stats", statsRouter);
 
 app.get("/api/me", verifyToken, (req, res) => {
     res.json(req.user);
