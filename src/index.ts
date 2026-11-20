@@ -5,12 +5,14 @@ import { connectDB } from "./config/db";
 import servicesRouter from "./routes/services";
 import { verifyToken } from "./middleware/auth";
 import { Request, Response, NextFunction } from "express";
+import appointmentsRouter from "./routes/appointments";
 
 const app = express();
 
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(express.json());
 app.use("/api/services", servicesRouter);
+app.use("/api/appointments", appointmentsRouter);
 
 app.get("/api/me", verifyToken, (req, res) => {
     res.json(req.user);
