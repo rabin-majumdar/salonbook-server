@@ -4,6 +4,7 @@ import cors from "cors";
 import { connectDB } from "./config/db";
 import servicesRouter from "./routes/services";
 import { verifyToken } from "./middleware/auth";
+import { Request, Response, NextFunction } from "express";
 
 const app = express();
 
@@ -20,6 +21,10 @@ app.use((_req, res) => {
 });
 
 const port = process.env.PORT || 5000;
+
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+    res.status(400).json({ message: err.message || "Something went wrong" });
+});
 
 connectDB()
     .then(() => app.listen(port, () => console.log(`Server on ${port}`)))
