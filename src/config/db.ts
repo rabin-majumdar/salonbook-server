@@ -1,8 +1,11 @@
 import mongoose from "mongoose";
 
 export async function connectDB() {
+    if (mongoose.connection.readyState === 1) return;
+
     const uri = process.env.MONGODB_URI;
     if (!uri) throw new Error("MONGODB_URI is not set");
+
     await mongoose.connect(uri, { dbName: "salonBook-db" });
     console.log("MongoDB connected");
 }
