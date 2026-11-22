@@ -2,8 +2,19 @@ import { Router } from "express";
 import mongoose, { isValidObjectId } from "mongoose";
 import { z } from "zod";
 import { verifyToken, requireRole } from "../middleware/auth";
+import multer from "multer";
+import { uploadToImgBB } from "../utils/imgbb";
 
 const router = Router();
+
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (_req, file, cb) => {
+        if (file.mimetype.startsWith("image/")) cb(null, true);
+        else cb(new Error("Only image files are allowed"));
+    },
+});
 
 const users = () => mongoose.connection.db!.collection("users");
 const PUBLIC_FIELDS = {
@@ -20,6 +31,19 @@ const profileSchema = z.object({
     name: z.string().trim().min(1, "Name is required").optional(),
     image: z.string().trim().url("Invalid image URL").or(z.literal("")).optional(),
     phone: z.string().trim().max(20).optional(),
+});
+
+
+router.post("/me/avatar", verifyToken, upload.single("image"), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "Please choose an image" });
+        }
+        const url = await uploadToImgBB(req.file.buffer);
+        res.json({ url });
+    } catch {
+        res.status(500).json({ message: "Image upload failed" });
+    }
 });
 
 router.patch("/me", verifyToken, async (req, res) => {
