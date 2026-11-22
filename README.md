@@ -63,6 +63,15 @@ To promote a registered account to admin (admins cannot be created through publi
 npm run make-admin -- admin@example.com
 ```
 
+## Stripe Webhook Setup
+
+Payment status is updated only by a verified Stripe webhook event. Create a webhook destination in the Stripe dashboard (test mode) with:
+
+- Endpoint URL: `https://<your-server-domain>/api/payments/webhook`
+- Events: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`
+
+Copy the signing secret into `STRIPE_WEBHOOK_SECRET`.
+
 ## Main API Routes
 
 | Method | Route | Access |
