@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
+import helmet from "helmet";
 import servicesRouter from "./routes/services";
 import appointmentsRouter from "./routes/appointments";
 import usersRouter from "./routes/users";
@@ -8,6 +9,11 @@ import paymentsRouter, { stripeWebhook } from "./routes/payments";
 import { verifyToken } from "./middleware/auth";
 
 const app = express();
+app.use(
+    helmet({
+        crossOriginResourcePolicy: { policy: "cross-origin" },
+    })
+);
 
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.post(
