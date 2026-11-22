@@ -29,7 +29,7 @@ const serviceSchema = z.object({
 const escapeRegex = (text: string) =>
     text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-// ---------- Public ----------
+
 
 router.get("/", async (req, res) => {
     try {
@@ -83,7 +83,6 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-// ---------- Admin: create / update / delete ----------
 
 router.post(
     "/",

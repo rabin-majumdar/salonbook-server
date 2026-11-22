@@ -28,7 +28,6 @@ function getJwks() {
     return jwks;
 }
 
-// 1) টোকেন যাচাই  2) ডাটাবেস থেকে role ও blocked দেখা
 export async function verifyToken(
     req: Request,
     res: Response,

@@ -15,7 +15,7 @@ const appointmentSchema = new Schema(
     {
         serviceId: { type: Schema.Types.ObjectId, ref: "Service", required: true },
         customerId: { type: Schema.Types.ObjectId, required: true },
-        appointmentDate: { type: String, required: true }, // YYYY-MM-DD
+        appointmentDate: { type: String, required: true },
         timeSlot: { type: String, required: true, enum: TIME_SLOTS },
         message: { type: String, trim: true, default: "" },
         servicePrice: { type: Number, required: true },
