@@ -20,6 +20,8 @@ REST API backend for **SalonBook**, a role-based salon appointment booking platf
 - Stripe Checkout sessions for confirmed appointments
 - Verified Stripe webhook: payment status becomes `paid` and a transaction is saved only after a signed webhook event
 - Admin and customer dashboard statistics, user block/unblock, profile updates
+- Security headers with Helmet and server-side validation with Zod
+- Profile image upload endpoint (ImgBB) for authenticated users
 
 ## Technology Stack
 
