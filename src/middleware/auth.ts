@@ -23,7 +23,10 @@ function getJwks() {
     if (!jwks) {
         const authUrl = process.env.CLIENT_URL;
         if (!authUrl) throw new Error("CLIENT_URL is not set");
-        jwks = createRemoteJWKSet(new URL("/api/auth/jwks", authUrl));
+        jwks = createRemoteJWKSet(new URL("/api/auth/jwks", authUrl), {
+            timeoutDuration: 20000,
+            cooldownDuration: 1000,
+        });
     }
     return jwks;
 }
@@ -33,24 +36,30 @@ export async function verifyToken(
     res: Response,
     next: NextFunction
 ) {
-    try {
-        const header = req.headers.authorization;
-        if (!header?.startsWith("Bearer ")) {
-            return res.status(401).json({ message: "Authentication required" });
-        }
-        const token = header.slice(7);
+    const header = req.headers.authorization;
+    if (!header?.startsWith("Bearer ")) {
+        return res.status(401).json({ message: "Authentication required" });
+    }
+    const token = header.slice(7);
 
+    let userId = "";
+    try {
         const { payload } = await jwtVerify(token, getJwks(), {
             issuer: process.env.CLIENT_URL,
         });
+        userId = String(payload.sub || payload.id || "");
+    } catch (err) {
+        console.error("Token verification failed:", err);
+        return res.status(401).json({ message: "Invalid or expired token" });
+    }
 
-        const userId = String(payload.sub || payload.id || "");
-        if (!mongoose.isValidObjectId(userId)) {
-            return res.status(401).json({ message: "Invalid token" });
-        }
+    if (!mongoose.isValidObjectId(userId)) {
+        return res.status(401).json({ message: "Invalid token" });
+    }
 
-        const user = await mongoose.connection.db!
-            .collection("users")
+    try {
+        const user = await mongoose.connection
+            .db!.collection("users")
             .findOne({ _id: new mongoose.Types.ObjectId(userId) });
 
         if (!user) {
@@ -66,10 +75,14 @@ export async function verifyToken(
             email: user.email,
             role: user.role === "admin" ? "admin" : "customer",
         };
-        next();
-    } catch {
-        res.status(401).json({ message: "Invalid or expired token" });
+    } catch (err) {
+        console.error("User lookup failed:", err);
+        return res
+            .status(500)
+            .json({ message: "Could not verify your account. Please try again." });
     }
+
+    next();
 }
 
 export function requireRole(...roles: AuthUser["role"][]) {
